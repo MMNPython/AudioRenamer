@@ -1,23 +1,29 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Nov 30 08:36:55 2020
+Created on Tue Dec 01 08:36:55 2020
 
 @author: mmn
 """
 
 import tkinter as tk
 import os
+from tkinter import filedialog
 from tkinter import *
-from os import listdir
-from os.path import isfile, join
+
+def browse_button():
+    # Allow user to select a directory and store it in global var
+    # called folder_path
+    global folder_path
+    folder = filedialog.askdirectory()
+    folder_path.set(folder)
       
-def remove_current_prefix(currDir):
-    prefix = PrefixToRemoveEntry.get()   
-    for(dirpath, dirnames, filenames) in os.walk(currDir):
+def remove_current_prefix(directory):
+    prefix = PrefixToRemoveEntry.get()
+    for(dirpath, dirnames, filenames) in os.walk(directory):
         for file in filenames:
             name, ext = os.path.splitext(file)
-            if(ext == ExtensionEntry.get()):
+            if(ext == ExtensionEntry.get()):   
                 if(file[:len(prefix)]) == prefix and not (os.path.isfile(file)):
                     old = os.path.join(dirpath, file)
                     new = os.path.join(dirpath, file[len(prefix):])
@@ -25,14 +31,13 @@ def remove_current_prefix(currDir):
                         print("File " + new + "already exists.")
                     else:
                         os.rename(old, new)
-                    
-                
-def add_new_prefix(currDir):
-    prefix = PrefixToAddEntry.get()  
-    for(dirpath, dirnames, filenames) in os.walk(currDir):
+
+def add_new_prefix(directory):
+    prefix = PrefixToAddEntry.get()
+    for(dirpath, dirnames, filenames) in os.walk(directory):
         for file in filenames:
             name, ext = os.path.splitext(file)
-            if(ext == ExtensionEntry.get()):
+            if(ext == ExtensionEntry.get()):   
                 if(file[:len(prefix)]) != prefix:
                     old = os.path.join(dirpath, file)
                     new = os.path.join(dirpath, prefix + file)
@@ -40,14 +45,15 @@ def add_new_prefix(currDir):
                         print("File " + new + "already exists.")
                     else:
                         os.rename(old, new)
+
                     
-def remove_current_suffix(currDir):
+def remove_current_suffix(directory):
     suffix = SuffixToRemoveEntry.get()
-    for(dirpath, dirnames, filenames) in os.walk(currDir):
+    length = len(suffix)
+    for(dirpath, dirnames, filenames) in os.walk(directory):
         for file in filenames:
             name, ext = os.path.splitext(file)
-            if(ext == ExtensionEntry.get()):
-                length = len(suffix)
+            if(ext == ExtensionEntry.get()):   
                 if(name[-length:]) == suffix:
                     old = os.path.join(dirpath, file)
                     newName = name[:(len(name)-length)] + ext
@@ -56,14 +62,15 @@ def remove_current_suffix(currDir):
                         print("File " + new + "already exists.")
                     else:
                         os.rename(old, new)
+
                     
-def add_new_suffix(currDir):
+def add_new_suffix(directory):
     suffix = SuffixToAddEntry.get()
-    for(dirpath, dirnames, filenames) in os.walk(currDir):
+    length = len(suffix)
+    for(dirpath, dirnames, filenames) in os.walk(directory):
         for file in filenames:
             name, ext = os.path.splitext(file)
-            if(ext == ExtensionEntry.get()):
-                length = len(suffix)
+            if(ext == ExtensionEntry.get()):  
                 if(name[-length:]) != suffix:
                     old = os.path.join(dirpath, file)
                     newName = name + suffix + ext
@@ -73,53 +80,57 @@ def add_new_suffix(currDir):
                     else:
                         os.rename(old, new)
 
+
 def run_prefixer():
-    currDir = os.path.dirname(os.path.realpath(__file__))
+    directory = folder_path.get()
     " remove current prefix if any "
-    remove_current_prefix(currDir)
-    " add new prefix "
-    add_new_prefix(currDir)
+    remove_current_prefix(directory)
     " remove current suffix if any"
-    remove_current_suffix(currDir)
-    " add new suffix "
-    add_new_suffix(currDir)
-    return
-        
+    remove_current_suffix(directory)
+    " add new prefix if any"
+    add_new_prefix(directory)
+    " add new suffix if any"
+    add_new_suffix(directory)               
 
 master = tk.Tk()
 
 # changing the title of our master widget      
-master.title("Prefixer")
+master.title("Prefix-it")
 
-ExtensionLabel = tk.Label(master, text="File extension (with '.')").grid(row = 0)
+# widgets
+folder_path = StringVar()
+FolderPathLabel = tk.Label(master, text="Run in Directory: ")
+FolderPathLabel.grid(row=0, column = 0)
+FolderPathEntry = tk.Entry(master, textvariable=folder_path)
+FolderPathEntry.grid(row = 0, column=1)
+FolderPathButton = Button(text="Browse", command=browse_button)
+FolderPathButton.grid(row=0, column=3)
+
+ExtensionLabel = tk.Label(master, text="File extension (with '.')").grid(sticky = W, row = 2)
 ExtensionEntry = tk.Entry(master)
-ExtensionEntry.grid(row = 0, column=1)
+ExtensionEntry.grid(row = 2, column=1)
 
-PrefixToRemoveLabel = tk.Label(master, text="Prefix to Remove").grid(row = 1)
-PrefixToAddLabel = tk.Label(master, text="Prefix to Add").grid(row = 2)
-
+PrefixToRemoveLabel = tk.Label(master, text="Prefix to Remove").grid(sticky = W, row = 4)
+PrefixToAddLabel = tk.Label(master, text="Prefix to Add").grid(sticky = W, row = 5)
+                            
 PrefixToRemoveEntry = tk.Entry(master)
 PrefixToAddEntry = tk.Entry(master)
 
-PrefixToRemoveEntry.grid(row = 1, column=1)
-PrefixToAddEntry.grid(row = 2, column=1)
+PrefixToRemoveEntry.grid(row = 4, column=1)
+PrefixToAddEntry.grid(row = 5, column=1)
 
-SuffixToRemoveLabel = tk.Label(master, text="Suffix to Remove").grid(row = 3)
-SuffixToAddLabel = tk.Label(master, text="Suffix to Add").grid(row = 4)
+SuffixToRemoveLabel = tk.Label(master, text="Suffix to Remove").grid(sticky = W, row = 6)
+SuffixToAddLabel = tk.Label(master, text="Suffix to Add").grid(sticky = W, row = 7)
 
 SuffixToRemoveEntry = tk.Entry(master)
 SuffixToAddEntry = tk.Entry(master)
 
-SuffixToRemoveEntry.grid(row = 3, column=1)
-SuffixToAddEntry.grid(row = 4, column=1)
+SuffixToRemoveEntry.grid(row = 6, column=1)
+SuffixToAddEntry.grid(row = 7, column=1)
 
-# creating a button instance
 runButton = tk.Button(master, text="Run",command=run_prefixer)
+runButton.place(x=200, y=200)
 
-# placing the button on my window
-runButton.place(x=200, y=150)
-
-#size of the window
-master.geometry("400x300")
+master.geometry("450x250")
 
 master.mainloop()
