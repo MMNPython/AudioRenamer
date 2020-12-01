@@ -1,4 +1,4 @@
-# AudioRenamer
+# FileRenamer
 Script to batch rename files to keep to naming conventions<br/>
 
 Browse to directory containing files needing editing.<br/>
