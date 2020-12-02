@@ -1,5 +1,5 @@
 # FileRenamer
-#### Script to batch rename files to keep to naming conventions.<br/>
+#### App to batch rename files to keep to naming conventions.<br/>
 
 Browse to directory containing files needing editing.<br/>
 Enter the extension of the files.<br/>
